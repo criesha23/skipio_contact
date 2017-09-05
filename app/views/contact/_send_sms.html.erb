@@ -1,0 +1,35 @@
+<div class="modal-dialog contact-sms-div" style="margin-top:10%;">
+   <div class="modal-content">
+        <div class="modal-header" style="height: 20px;">
+            <button type='button' class='close' aria-hidden='true' onclick='close_sms();'><i class='glyphicon glyphicon-remove'></i></button><p style="font-size: 25px;margin-left: 2%;margin-top: 2%;">Send SMS</p><br><br>
+        </div>
+        <div class="modal-body">
+            <span>To: </span><span><%=params[:name]%></span>
+            <div class="row" style="margin-left: 3%;">
+                <textarea rows="4" cols="50" placeholder="Type your message here.." id="message" style="width: 90%;"></textarea>
+            </div>           
+        </div>
+        <div class="modal-footer">
+            <a href="#" class="btn btn-default" id="send_sms_process">Send SMS</a>
+            <button type="button" class="btn btn-default" onclick='close_sms();'>Cancel</button>
+        </div>
+    </div>
+    <script type="text/javascript">
+        $(document).ready(function() {
+            $(".contact-sms-div").on('click', '#send_sms_process', function(e) {
+                var message = $('textarea#message').val();
+                var data = "commit=Send&id=<%=params[:id]%>&message="+message;
+                console.log(data);
+                $.ajax({    
+                    type: "GET",
+                    url: "/contact/send_sms",
+                    data: data
+                })
+            });
+        });
+        function close_sms(){
+            $(".contact-sms-div").remove(); 
+            $('#send-sms-modal-container').modal('hide');
+        }
+    </script>
+</div>

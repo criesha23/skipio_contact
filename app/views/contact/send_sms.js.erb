@@ -1,0 +1,7 @@
+if("<%=params[:commit]%>" == 'Send'){
+	alert("Sms has successfully been sent.");
+	$(".contact-sms-div").remove(); 
+    $('#send-sms-modal-container').modal('hide');
+}else{
+	$("#send-sms-modal-container ").append('<%= escape_javascript render("send_sms") %>');
+}

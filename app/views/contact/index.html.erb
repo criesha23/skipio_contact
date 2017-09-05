@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html id="contact_html">
+	<head>
+		<!-- TEMPO -->
+		<!-- INCLUDE JAVASCRIPTS  -->
+		<%= javascript_include_tag "application" %>
+
+		<%= stylesheet_link_tag "application" %>
+		<style type="text/css">
+			.contact_full_name, .contact_information{
+				width:40%;
+			}
+			.contact_sms{
+				width: 20%;
+			}
+		</style>
+		<script type="text/javascript">
+			<%= render partial: "datatables_requirements" %>
+			var response_datatable;
+			$(document).ready(function() {
+				//  INITIALIZERS
+		        var response = <%=@response_body.to_json.html_safe %>
+		        response_datatable = $('#response_data_table').DataTable( {
+		            "sDom": "<'row'r>t<'row'<'span8'p>>",
+		            "aaSorting": [] ,
+		            "sPaginationType": "bootstrap",
+		            "oLanguage": {"sLengthMenu": "_MENU_ records per page"},
+		            "autoWidth": false,
+		            "aoColumns":[ 
+		                            {   "mDataProp":"full_name" , 
+		                                "sTitle":"Name",
+		                                "bSortable": true,
+		                                "bSearchable": true,
+		                                "sClass": "contact_full_name",
+		                                "fnRender": function ( oObj ) { 
+											return oObj.aData.full_name
+		                                }
+		                            },
+		                            {   "mDataProp":"phone_mobile" , 
+		                                "sTitle":"Contact Information",
+		                                "bSortable": true,
+		                                "bSearchable": true,
+		                                "sClass": "contact_information",
+		                                "fnRender": function ( oObj ) { 
+		                                	var phone_mobile='';
+		                                	var phone_mobile_national = ''
+		                                	var phone_mobile_international =''
+		                                	if (oObj.aData.phone_mobile){
+		                                		phone_mobile = '<div>Phone Mobile: '+oObj.aData.phone_mobile+'</div>'
+		                                	}
+		                                	if (oObj.aData.phone_mobile_national){
+		                                		phone_mobile_national = '<div>Phone Mobile National: '+oObj.aData.phone_mobile_national+'</div>'
+		                                	}
+		                                	if (oObj.aData.phone_mobile_international){
+		                                		phone_mobile_international = '<div>Phone Mobile International: '+oObj.aData.phone_mobile_international+'</div>'
+		                                	}
+											return phone_mobile+phone_mobile_national+phone_mobile_international
+		                                }
+		                            }
+		                            ,
+		                            {   "mDataProp":"is_sms_enabled" , 
+		                                "sTitle":"Action",
+		                                "bSortable": false,
+		                                "bSearchable": false,
+		                                "sClass": "contact_sms",
+		                                "fnRender": function ( oObj ) { 
+		                                	var sms = ''
+		                                	if (oObj.aData.is_sms_enabled == true){
+		                                		sms = '<a href="#" class="send_sms" disabled=disabled>Send SMS</a>'
+		                                	}else{
+		                                		sms = 'Unable to send a message to this person'
+		                                	}
+		                                	
+											return sms
+		                                }
+		                            }
+		                        ],
+		            "aaData": response ,
+		            // "aaData": [] ,
+		            "fnRowCallback": function( nRow, aData, iDisplayIndex, iDisplayIndexFull ) {
+		                $(nRow).attr('id','response_row_'+aData.id)
+		                $(nRow).attr('data-table_index_number',iDisplayIndexFull)
+		            }
+		        } );
+			    
+		        $("#contact_html").on('click', '.send_sms', function(e) {
+	                $('#send-sms-modal-container').modal('hide');
+	                $('#send-sms-modal-container').modal('show');
+	                var tr_id = $(this).parent().parent().attr('id');
+	                var id = tr_id.substr(13);
+	                var name = $("#"+tr_id+" .contact_full_name").html();
+	                var data = "id="+id+"&name="+name;
+	                $.ajax({    
+	                    type: "GET",
+	                    url: "/contact/send_sms",
+	                    data: data
+	                })
+	            });
+			});
+		</script>
+	</head>
+	<body>
+		<!-- table response index -->
+		<table cellpadding="0" cellspacing="0" border="0" class="table table-hover" id="response_data_table" style="width: 95%;margin-top:1%;">
+
+		</table>
+
+		<div class="modal" id="send-sms-modal-container">
+		</div>
+	</body>
+</html>
